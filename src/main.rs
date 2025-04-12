@@ -29,9 +29,9 @@ impl Compiler {
                 } else {
                     return None;
                 }
-            } else if line.starts_with("add") {
+            } else if line == "add" {
                 result.push(Instruction::Add);
-            } else if line.starts_with("sub") {
+            } else if line == "sub" {
                 result.push(Instruction::Sub);
             } else {
                 return None;
