@@ -1,6 +1,6 @@
 fn main() {
     let mut compiler = Compiler {
-        stack_index: 8,
+        stack_index: 0,
         target: "nasm:x86_64".to_string(),
     };
     let bytecodes = Compiler::parse_ir("1 2 add 2 3 4 sub add 1 add add").unwrap();
@@ -42,23 +42,26 @@ impl Compiler {
             for bytecode in bytecodes {
                 match bytecode {
                     Instruction::Push(value) => {
-                        assembly_code
-                            .push_str(&format!("\tmov r{}, {}\n", self.stack_index, value));
+                        assembly_code.push_str(&format!(
+                            "\tmov r{}, {}\n",
+                            self.stack_index + 8,
+                            value
+                        ));
                         self.stack_index += 1;
                     }
                     Instruction::Add => {
                         assembly_code.push_str(&format!(
                             "\tadd r{}, r{}\n",
-                            self.stack_index - 2,
-                            self.stack_index - 1,
+                            self.stack_index + 8 - 2,
+                            self.stack_index + 8 - 1,
                         ));
                         self.stack_index -= 1;
                     }
                     Instruction::Sub => {
                         assembly_code.push_str(&format!(
                             "\tsub r{}, r{}\n",
-                            self.stack_index - 2,
-                            self.stack_index - 1,
+                            self.stack_index + 8 - 2,
+                            self.stack_index + 8 - 1,
                         ));
                         self.stack_index -= 1;
                     }
@@ -68,7 +71,7 @@ impl Compiler {
                 assembly_code
                     + &format!(
                         "\n\tmov rax, 0x2000001\n\tmov rdi, r{}\n\tsyscall",
-                        self.stack_index - 1
+                        self.stack_index + 8 - 1
                     ),
             )
         } else {
