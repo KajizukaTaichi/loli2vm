@@ -8,6 +8,8 @@ fn main() {
     println!("{}", assembly_code.unwrap());
 }
 
+const REGISTER_BASE: usize = 8;
+
 enum Instruction {
     Const(i64),
     Add,
@@ -51,7 +53,7 @@ impl Compiler {
                     Instruction::Const(value) => {
                         assembly_code.push_str(&format!(
                             "\tmov r{}, {}\n",
-                            self.stack_index + 8,
+                            self.stack_index + REGISTER_BASE,
                             value
                         ));
                         self.stack_index += 1;
@@ -59,24 +61,24 @@ impl Compiler {
                     Instruction::Add => {
                         assembly_code.push_str(&format!(
                             "\tadd r{}, r{}\n",
-                            self.stack_index + 8 - 2,
-                            self.stack_index + 8 - 1,
+                            self.stack_index + REGISTER_BASE - 2,
+                            self.stack_index + REGISTER_BASE - 1,
                         ));
                         self.stack_index -= 1;
                     }
                     Instruction::Sub => {
                         assembly_code.push_str(&format!(
                             "\tsub r{}, r{}\n",
-                            self.stack_index + 8 - 2,
-                            self.stack_index + 8 - 1,
+                            self.stack_index + REGISTER_BASE - 2,
+                            self.stack_index + REGISTER_BASE - 1,
                         ));
                         self.stack_index -= 1;
                     }
                     Instruction::Mul => {
                         assembly_code.push_str(&format!(
                             "\timul r{}, r{}\n",
-                            self.stack_index + 8 - 2,
-                            self.stack_index + 8 - 1,
+                            self.stack_index + REGISTER_BASE - 2,
+                            self.stack_index + REGISTER_BASE - 1,
                         ));
                         self.stack_index -= 1;
                     }
@@ -86,7 +88,7 @@ impl Compiler {
                 assembly_code
                     + &format!(
                         "\n\tmov rax, 0x2000001\n\tmov rdi, r{}\n\tsyscall",
-                        self.stack_index + 8 - 1
+                        self.stack_index + REGISTER_BASE - 1
                     ),
             )
         } else {
