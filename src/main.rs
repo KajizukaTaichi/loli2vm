@@ -3,7 +3,13 @@ fn main() {
         stack_index: 8,
         target: "nasm:x86_64".to_string(),
     };
-    let bytecodes = vec![Instruction::Push(2), Instruction::Push(3), Instruction::Add];
+    let bytecodes = vec![
+        Instruction::Push(2),
+        Instruction::Push(3),
+        Instruction::Add,
+        Instruction::Push(1),
+        Instruction::Sub,
+    ];
     let assembly_code = compiler.compile(bytecodes);
     println!("{}", assembly_code.unwrap());
 }
