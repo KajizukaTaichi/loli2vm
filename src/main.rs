@@ -3,7 +3,7 @@ fn main() {
         stack_index: 8,
         target: "nasm:x86_64".to_string(),
     };
-    let bytecodes = Compiler::parse_ir("1 2 3 4 5 add add add add").unwrap();
+    let bytecodes = Compiler::parse_ir("1 2 add 2 3 4 sub add 1 add add").unwrap();
     let assembly_code = compiler.compile(bytecodes);
     println!("{}", assembly_code.unwrap());
 }
