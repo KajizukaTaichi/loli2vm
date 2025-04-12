@@ -12,6 +12,7 @@ enum Instruction {
     Push(i64),
     Add,
     Sub,
+    Mul,
 }
 
 struct Compiler {
@@ -33,6 +34,8 @@ impl Compiler {
                 result.push(Instruction::Add);
             } else if line == "sub" {
                 result.push(Instruction::Sub);
+            } else if line == "mul" {
+                result.push(Instruction::Mul);
             } else {
                 return None;
             }
@@ -64,6 +67,14 @@ impl Compiler {
                     Instruction::Sub => {
                         assembly_code.push_str(&format!(
                             "\tsub r{}, r{}\n",
+                            self.stack_index + 8 - 2,
+                            self.stack_index + 8 - 1,
+                        ));
+                        self.stack_index -= 1;
+                    }
+                    Instruction::Mul => {
+                        assembly_code.push_str(&format!(
+                            "\timul r{}, r{}\n",
                             self.stack_index + 8 - 2,
                             self.stack_index + 8 - 1,
                         ));
