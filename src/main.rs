@@ -23,15 +23,15 @@ impl Compiler {
     fn parse_ir(source: &str) -> Option<Vec<Instruction>> {
         let mut result = vec![];
         for line in source.lines() {
-            if let Some(n) = line.strip_prefix("push ") {
-                if let Ok(n) = n.parse() {
+            if let Some(n) = line.strip_prefix("const ") {
+                if let Ok(n) = n.trim().parse() {
                     result.push(Instruction::Push(n));
                 } else {
                     return None;
                 }
-            } else if line.starts_with("i64.add") {
+            } else if line.starts_with("add") {
                 result.push(Instruction::Add);
-            } else if line.starts_with("i64.sub") {
+            } else if line.starts_with("sub") {
                 result.push(Instruction::Sub);
             } else {
                 return None;
