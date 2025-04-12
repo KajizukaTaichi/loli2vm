@@ -1,7 +1,7 @@
 fn main() {
     let mut compiler = Compiler {
         stack_index: 0,
-        target: "nasm:x86_64".to_string(),
+        target: "nasm-x86_64".to_string(),
     };
     let bytecodes = Compiler::parse_ir(include_str!("../example.lir")).unwrap();
     let assembly_code = compiler.compile(bytecodes);
@@ -44,8 +44,8 @@ impl Compiler {
     }
 
     fn compile(&mut self, bytecodes: Vec<Instruction>) -> Option<String> {
-        let mut assembly_code = "section .text\n\tglobal _start\n\n_start:\n".to_string();
-        if self.target == "nasm:x86_64" {
+        if self.target == "nasm-x86_64" {
+            let mut assembly_code = "section .text\n\tglobal _start\n\n_start:\n".to_string();
             for bytecode in bytecodes {
                 match bytecode {
                     Instruction::Const(value) => {
