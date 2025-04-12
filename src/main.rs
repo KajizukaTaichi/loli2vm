@@ -9,7 +9,7 @@ fn main() {
 }
 
 enum Instruction {
-    Push(i64),
+    Const(i64),
     Add,
     Sub,
     Mul,
@@ -26,7 +26,7 @@ impl Compiler {
         for line in source.lines() {
             if let Some(n) = line.strip_prefix("const ") {
                 if let Ok(n) = n.trim().parse() {
-                    result.push(Instruction::Push(n));
+                    result.push(Instruction::Const(n));
                 } else {
                     return None;
                 }
@@ -48,7 +48,7 @@ impl Compiler {
         if self.target == "nasm:x86_64" {
             for bytecode in bytecodes {
                 match bytecode {
-                    Instruction::Push(value) => {
+                    Instruction::Const(value) => {
                         assembly_code.push_str(&format!(
                             "\tmov r{}, {}\n",
                             self.stack_index + 8,
