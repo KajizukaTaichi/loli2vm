@@ -57,7 +57,7 @@ impl Compiler {
             Some(
                 assembly_code
                     + &format!(
-                        "\tmov rax, 0x2000001\n\tmov rdi, r{}\n\tsyscall",
+                        "\n\tmov rax, 0x2000001\n\tmov rdi, r{}\n\tsyscall",
                         self.stack_index - 1
                     ),
             )
