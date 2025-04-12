@@ -1,7 +1,7 @@
 fn main() {
     let mut compiler = Compiler {
         stack_index: 0,
-        target: "llvm-unknown-unknown".to_string(),
+        target: "nasm-x86_64-macos".to_string(),
     };
     let bytecodes = Compiler::parse_ir(include_str!("../example.sbir")).unwrap();
     let assembly_code = compiler.compile(bytecodes);
