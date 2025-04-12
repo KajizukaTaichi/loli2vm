@@ -3,7 +3,7 @@ fn main() {
         stack_index: 0,
         target: "nasm-x86_64-macos".to_string(),
     };
-    let bytecodes = Compiler::parse_ir(include_str!("../example.lir")).unwrap();
+    let bytecodes = Compiler::parse_ir(include_str!("../example.sbir")).unwrap();
     let assembly_code = compiler.compile(bytecodes);
     println!("{}", assembly_code.unwrap());
 }
