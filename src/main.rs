@@ -26,6 +26,21 @@ struct Compiler {
 }
 
 impl Compiler {
+    fn parse_ir(source: &str) -> Option<Vec<Instruction>> {
+        let mut result = vec![];
+        for line in source.lines() {
+            if line.starts_with("push") {
+                let value = line.split_whitespace().nth(1).unwrap().parse().unwrap();
+                result.push(Instruction::Push(value));
+            } else if line.starts_with("add") {
+                result.push(Instruction::Add);
+            } else if line.starts_with("sub") {
+                result.push(Instruction::Sub);
+            }
+        }
+        Some(result)
+    }
+
     fn compile(&mut self, bytecodes: Vec<Instruction>) -> Option<String> {
         let mut assembly_code = "section .text\n\tglobal _start\n\n_start:\n".to_string();
         if self.target == "nasm:x86_64" {
