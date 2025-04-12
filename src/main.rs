@@ -103,6 +103,56 @@ impl Compiler {
                         self.stack_index + REGISTER_BASE - 1
                     ),
             )
+        } else if self.target == "llvm-unknown-unknown" {
+            let mut assembly_code = "define i32 @main() {\n\tentry:\n".to_string();
+            for bytecode in bytecodes {
+                match bytecode {
+                    Instruction::Const(value) => {
+                        assembly_code.push_str(&format!("\t%r{} = {}\n", self.stack_index, value));
+                        self.stack_index += 1;
+                    }
+                    Instruction::Add => {
+                        assembly_code.push_str(&format!(
+                            "\t%r{} = add i64 %r{}, %r{}\n",
+                            self.stack_index,
+                            self.stack_index - 2,
+                            self.stack_index - 1,
+                        ));
+                        self.stack_index += 1;
+                    }
+                    Instruction::Sub => {
+                        assembly_code.push_str(&format!(
+                            "\t%r{} = sub i64 %r{}, %r{}\n",
+                            self.stack_index,
+                            self.stack_index - 2,
+                            self.stack_index - 1,
+                        ));
+                        self.stack_index += 1;
+                    }
+                    Instruction::Mul => {
+                        assembly_code.push_str(&format!(
+                            "\t%r{} = mul i64 %r{}, %r{}\n",
+                            self.stack_index,
+                            self.stack_index - 2,
+                            self.stack_index - 1,
+                        ));
+                        self.stack_index += 1;
+                    }
+                    Instruction::Label(label) => {
+                        assembly_code.push_str(&format!("\n{label}:\n"));
+                    }
+                    Instruction::Jump(label) => {
+                        assembly_code.push_str(&format!("\tbr label %{label}\n"));
+                    }
+                }
+            }
+            Some(
+                assembly_code
+                    + &format!(
+                        "\n\tmov rax, 0x2000001\n\tmov rdi, r{}\n\tsyscall",
+                        self.stack_index + REGISTER_BASE - 1
+                    ),
+            )
         } else {
             None
         }
