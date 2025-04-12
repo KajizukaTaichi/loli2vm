@@ -15,6 +15,7 @@ enum Instruction {
     Add,
     Sub,
     Mul,
+    Label(String),
 }
 
 struct Compiler {
@@ -32,6 +33,8 @@ impl Compiler {
                 } else {
                     return None;
                 }
+            } else if let Some(label) = line.strip_prefix("label ") {
+                result.push(Instruction::Label(label.trim().to_owned()));
             } else if line == "add" {
                 result.push(Instruction::Add);
             } else if line == "sub" {
@@ -81,6 +84,9 @@ impl Compiler {
                             self.stack_index + REGISTER_BASE - 1,
                         ));
                         self.stack_index -= 1;
+                    }
+                    Instruction::Label(label) => {
+                        assembly_code.push_str(&format!("\n{label}\n",));
                     }
                 }
             }
