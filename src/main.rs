@@ -3,13 +3,7 @@ fn main() {
         stack_index: 8,
         target: "nasm:x86_64".to_string(),
     };
-    let bytecodes = vec![
-        Instruction::Push(2),
-        Instruction::Push(3),
-        Instruction::Add,
-        Instruction::Push(1),
-        Instruction::Sub,
-    ];
+    let bytecodes = Compiler::parse_ir("1 2 3 add sub 10 add").unwrap();
     let assembly_code = compiler.compile(bytecodes);
     println!("{}", assembly_code.unwrap());
 }
@@ -28,10 +22,9 @@ struct Compiler {
 impl Compiler {
     fn parse_ir(source: &str) -> Option<Vec<Instruction>> {
         let mut result = vec![];
-        for line in source.lines() {
-            if line.starts_with("push") {
-                let value = line.split_whitespace().nth(1).unwrap().parse().unwrap();
-                result.push(Instruction::Push(value));
+        for line in source.split_whitespace() {
+            if let Ok(n) = line.parse::<i64>() {
+                result.push(Instruction::Push(n));
             } else if line.starts_with("add") {
                 result.push(Instruction::Add);
             } else if line.starts_with("sub") {
