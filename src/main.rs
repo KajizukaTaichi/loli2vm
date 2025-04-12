@@ -16,6 +16,7 @@ enum Instruction {
     Sub,
     Mul,
     Label(String),
+    Jump(String),
 }
 
 struct Compiler {
@@ -35,6 +36,8 @@ impl Compiler {
                 }
             } else if let Some(label) = line.strip_prefix("label ") {
                 result.push(Instruction::Label(label.trim().to_owned()));
+            } else if let Some(label) = line.strip_prefix("jump ") {
+                result.push(Instruction::Jump(label.trim().to_owned()));
             } else if line == "add" {
                 result.push(Instruction::Add);
             } else if line == "sub" {
@@ -86,7 +89,10 @@ impl Compiler {
                         self.stack_index -= 1;
                     }
                     Instruction::Label(label) => {
-                        assembly_code.push_str(&format!("\n{label}\n",));
+                        assembly_code.push_str(&format!("\n{label}:\n",));
+                    }
+                    Instruction::Jump(label) => {
+                        assembly_code.push_str(&format!("\tjmp {label}\n",));
                     }
                 }
             }
