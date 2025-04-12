@@ -7,6 +7,7 @@ _start:
 	add r8, r9
 	mov r9, 1
 	sub r8, r9
+
 	mov rax, 0x2000001
 	mov rdi, r8
 	syscall
