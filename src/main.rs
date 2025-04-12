@@ -36,6 +36,8 @@ impl Compiler {
                 result.push(Instruction::Add);
             } else if line.starts_with("sub") {
                 result.push(Instruction::Sub);
+            } else {
+                return None;
             }
         }
         Some(result)
