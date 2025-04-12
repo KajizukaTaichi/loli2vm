@@ -1,7 +1,7 @@
 fn main() {
     let mut compiler = Compiler {
         stack_index: 0,
-        target: "nasm-x86_64-macos".to_string(),
+        target: "llvm-unknown-unknown".to_string(),
     };
     let bytecodes = Compiler::parse_ir(include_str!("../example.sbir")).unwrap();
     let assembly_code = compiler.compile(bytecodes);
@@ -104,11 +104,14 @@ impl Compiler {
                     ),
             )
         } else if self.target == "llvm-unknown-unknown" {
-            let mut assembly_code = "define i32 @main() {\n\tentry:\n".to_string();
+            let mut assembly_code = "define i64 @main() {\n\tentry:\n".to_string();
             for bytecode in bytecodes {
                 match bytecode {
                     Instruction::Const(value) => {
-                        assembly_code.push_str(&format!("\t%r{} = {}\n", self.stack_index, value));
+                        assembly_code.push_str(&format!(
+                            "\t%r{} = add i64 0, {}\n",
+                            self.stack_index, value
+                        ));
                         self.stack_index += 1;
                     }
                     Instruction::Add => {
@@ -146,13 +149,7 @@ impl Compiler {
                     }
                 }
             }
-            Some(
-                assembly_code
-                    + &format!(
-                        "\n\tmov rax, 0x2000001\n\tmov rdi, r{}\n\tsyscall",
-                        self.stack_index + REGISTER_BASE - 1
-                    ),
-            )
+            Some(assembly_code + &format!("\n\tret i64 %r{}\n}}", self.stack_index - 1))
         } else {
             None
         }
