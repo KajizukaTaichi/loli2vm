@@ -1,7 +1,7 @@
 fn main() {
     let mut compiler = Compiler {
         stack_index: 0,
-        target: "nasm-x86_64-macos".to_string(),
+        target: "llvm-unknown-unknown".to_string(),
     };
     let bytecodes = Compiler::parse_ir(include_str!("../example.sbir")).unwrap();
     let assembly_code = compiler.compile(bytecodes);
@@ -11,7 +11,7 @@ fn main() {
 const REGISTER_BASE: usize = 8;
 
 enum Instruction {
-    Const(i64),
+    Push(i64),
     Add,
     Sub,
     Mul,
@@ -28,9 +28,9 @@ impl Compiler {
     fn parse_ir(source: &str) -> Option<Vec<Instruction>> {
         let mut result = vec![];
         for line in source.lines() {
-            if let Some(n) = line.strip_prefix("const") {
+            if let Some(n) = line.strip_prefix("push") {
                 if let Ok(n) = n.trim().parse() {
-                    result.push(Instruction::Const(n));
+                    result.push(Instruction::Push(n));
                 } else {
                     return None;
                 }
@@ -56,7 +56,7 @@ impl Compiler {
             let mut assembly_code = "section .text\n\tglobal _start\n\n_start:\n".to_string();
             for bytecode in bytecodes {
                 match bytecode {
-                    Instruction::Const(value) => {
+                    Instruction::Push(value) => {
                         assembly_code.push_str(&format!(
                             "\tmov r{}, {}\n",
                             self.stack_index + REGISTER_BASE,
@@ -107,7 +107,7 @@ impl Compiler {
             let mut assembly_code = "define i64 @main() {\n\tentry:\n".to_string();
             for bytecode in bytecodes {
                 match bytecode {
-                    Instruction::Const(value) => {
+                    Instruction::Push(value) => {
                         assembly_code.push_str(&format!(
                             "\t%r{} = add i64 0, {}\n",
                             self.stack_index, value
@@ -142,7 +142,7 @@ impl Compiler {
                         self.stack_index += 1;
                     }
                     Instruction::Label(label) => {
-                        assembly_code.push_str(&format!("\t{label}:\n"));
+                        assembly_code.push_str(&format!("\n{label}:\n"));
                     }
                     Instruction::Jump(label) => {
                         assembly_code.push_str(&format!("\tbr label %{label}\n"));
