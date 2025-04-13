@@ -1,7 +1,7 @@
 fn main() {
     let mut compiler = Compiler {
         stack_index: 0,
-        target: "llvm-unknown-unknown".to_string(),
+        target: "nasm-x86_64-macos".to_string(),
     };
     let bytecodes = Compiler::parse_ir(include_str!("../example.sbir")).unwrap();
     let assembly_code = compiler.compile(bytecodes);
@@ -15,8 +15,10 @@ enum Instruction {
     Add,
     Sub,
     Mul,
+    Equal,
     Label(String),
     Jump(String),
+    BrIf(String),
 }
 
 struct Compiler {
@@ -38,12 +40,16 @@ impl Compiler {
                 result.push(Instruction::Label(label.trim().to_owned()));
             } else if let Some(label) = line.strip_prefix("jump") {
                 result.push(Instruction::Jump(label.trim().to_owned()));
+            } else if let Some(label) = line.strip_prefix("jmp_if") {
+                result.push(Instruction::BrIf(label.trim().to_owned()));
             } else if line == "add" {
                 result.push(Instruction::Add);
             } else if line == "sub" {
                 result.push(Instruction::Sub);
             } else if line == "mul" {
                 result.push(Instruction::Mul);
+            } else if line == "is_eql" {
+                result.push(Instruction::Equal);
             } else {
                 return None;
             }
@@ -88,11 +94,26 @@ impl Compiler {
                         ));
                         self.stack_index -= 1;
                     }
+                    Instruction::Equal => {
+                        assembly_code.push_str(&format!(
+                            "\tcmp r{a}, r{}\n\tsete al\n\tmovzx r{a}, al",
+                            self.stack_index + REGISTER_BASE - 1,
+                            a = self.stack_index + REGISTER_BASE - 2,
+                        ));
+                        self.stack_index -= 1;
+                    }
                     Instruction::Label(label) => {
                         assembly_code.push_str(&format!("\n{label}:\n",));
                     }
                     Instruction::Jump(label) => {
                         assembly_code.push_str(&format!("\tjmp {label}\n",));
+                    }
+                    Instruction::BrIf(label) => {
+                        assembly_code.push_str(&format!(
+                            "\tcmp r{}, 1\n\tje {label}\n",
+                            self.stack_index + REGISTER_BASE - 1,
+                        ));
+                        self.stack_index -= 1;
                     }
                 }
             }
@@ -147,6 +168,7 @@ impl Compiler {
                     Instruction::Jump(label) => {
                         assembly_code.push_str(&format!("\tbr label %{label}\n"));
                     }
+                    _ => todo!(),
                 }
             }
             Some(assembly_code + &format!("\n\tret i64 %r{}\n}}", self.stack_index - 1))
