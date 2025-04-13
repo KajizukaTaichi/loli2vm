@@ -1,7 +1,7 @@
-const   5
-const   1
-const   2
+push    5
+push    1
+push    2
 add
 mul
-const   3
+push    3
 sub
