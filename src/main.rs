@@ -30,6 +30,7 @@ impl Compiler {
     fn parse_ir(source: &str) -> Option<Vec<Instruction>> {
         let mut result = vec![];
         for line in source.lines() {
+            let line = line.trim();
             if let Some(n) = line.strip_prefix("push") {
                 if let Ok(n) = n.trim().parse() {
                     result.push(Instruction::Push(n));
@@ -50,8 +51,6 @@ impl Compiler {
                 result.push(Instruction::Mul);
             } else if line == "is_eql" {
                 result.push(Instruction::Equal);
-            } else {
-                return None;
             }
         }
         Some(result)
@@ -96,7 +95,7 @@ impl Compiler {
                     }
                     Instruction::Equal => {
                         assembly_code.push_str(&format!(
-                            "\tcmp r{a}, r{}\n\tsete al\n\tmovzx r{a}, al",
+                            "\tcmp r{a}, r{}\n\tsete al\n\tmovzx r{a}, al\n",
                             self.stack_index + REGISTER_BASE - 1,
                             a = self.stack_index + REGISTER_BASE - 2,
                         ));
